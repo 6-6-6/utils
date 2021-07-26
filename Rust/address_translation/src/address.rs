@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use std::net::Ipv6Addr;
 
 /// construct an Ipv6Addr from a vector, make sure it conatins more than 16 elements!!
+#[inline]
 pub unsafe fn construct_v6addr(segments: &[u8]) -> Ipv6Addr {
     Ipv6Addr::from((*(segments.as_ptr() as *const u128)).to_be())
 }
@@ -13,7 +14,6 @@ pub fn pfx_csum(prefix: &Ipv6Net) -> u16 {
     for x in prefix.network().segments().iter() {
         ret += *x as i32;
     }
-
     ((ret.rem_euclid(0xffff)) ^ 0xffff) as u16
 }
 
@@ -43,20 +43,13 @@ pub fn nptv6(
 }
 
 /// rewrite the prefix
+#[inline]
 pub fn netmapv6(upstream_addr: Ipv6Addr, downstream_prefix: &Ipv6Net) -> Ipv6Addr {
     let net_u128 = u128::from_be_bytes(upstream_addr.octets())
         & u128::from_be_bytes(downstream_prefix.hostmask().octets());
     let prefix_u128 = u128::from_be_bytes(downstream_prefix.addr().octets())
         & u128::from_be_bytes(downstream_prefix.netmask().octets());
     Ipv6Addr::from((prefix_u128 + net_u128).to_be_bytes())
-}
-
-/// NOT forwarding NS for some special addresses
-///     1. https://datatracker.ietf.org/doc/html/rfc4291#section-2.6.1
-pub fn get_no_forwarding_addresses(prefix: &Ipv6Net) -> HashSet<Ipv6Addr> {
-    let mut addr_set = HashSet::new();
-    addr_set.insert(prefix.network());
-    addr_set
 }
 
 //
