@@ -1,5 +1,4 @@
 use ipnet::Ipv6Net;
-use std::collections::HashSet;
 use std::net::Ipv6Addr;
 
 /// construct an Ipv6Addr from a vector, make sure it conatins more than 16 elements!!
@@ -21,11 +20,11 @@ pub fn pfx_csum(prefix: &Ipv6Net) -> u16 {
 pub fn nptv6(
     upstream_pfx_csum: u16,
     downstream_pfx_csum: u16,
-    upstream_addr: Ipv6Net,
-    downstream_pfx: Ipv6Net,
+    upstream_addr: Ipv6Addr,
+    downstream_pfx: &Ipv6Net,
 ) -> Ipv6Addr {
-    let pfx_len = upstream_addr.prefix_len() / 16;
-    let mut segments = upstream_addr.addr().segments();
+    let pfx_len = downstream_pfx.prefix_len() / 16;
+    let mut segments = upstream_addr.segments();
     let downstream_segs = downstream_pfx.network().segments();
     let to_be_translated_segment = segments[pfx_len as usize];
 
