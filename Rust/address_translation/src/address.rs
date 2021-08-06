@@ -57,7 +57,7 @@ pub fn construct_v6addr(segments: &[u8]) -> Option<Ipv6Addr> {
     }
 }
 
-/// calculate checksum for NPTv6, see [nptv6](address_translation::nptv6)
+/// calculate checksum for NPTv6, see [nptv6](crate::nptv6)
 pub fn pfx_csum(prefix: &Ipv6Net) -> u16 {
     let mut ret: i32 = 0;
     for x in prefix.network().segments().iter() {
@@ -127,7 +127,7 @@ pub fn nptv6(
 
 /// rewrite the prefix of an Ipv6Addr
 ///
-/// for details, see see <https://www.netfilter.org/documentation/HOWTO/netfilter-extensions-HOWTO-4.html#ss4.4>
+/// for details, see <https://www.netfilter.org/documentation/HOWTO/netfilter-extensions-HOWTO-4.html#ss4.4>
 ///
 /// # Example
 ///

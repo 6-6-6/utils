@@ -1,4 +1,5 @@
-pub mod address;
-pub use address::*;
+//! # address_translation
+//! Some helpers for IPv6 Network Address Tranlation.
 
-extern crate ipnet;
+mod address;
+pub use address::*;
