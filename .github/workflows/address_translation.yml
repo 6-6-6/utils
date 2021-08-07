@@ -16,7 +16,11 @@ jobs:
       run:
         working-directory: Rust/address_translation
 
-    runs-on: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v2
