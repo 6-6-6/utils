@@ -6,7 +6,7 @@ edition = "2018"
 license = "MIT"
 repository = "https://github.com/6-6-6/utils"
 homepage = "https://github.com/6-6-6/utils/tree/master/Rust/address_translation"
-description = "Some helpers for IPv6 Network Address Tranlation."
+description = "Some helpers for IPv6 Network Address Translation."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
