@@ -11,7 +11,7 @@ class Sinc():
         self.sample_interval = sample_interval
 
     def __call__(self, t):
-        tmp = np.zeros(t.size)
+        tmp = np.zeros(t.size, dtype=self.base_data.dtype)
         for i in range(self.base_data.size):
             v = self.base_data[i] * np.sinc(t/self.sample_interval - i)
             tmp += v
