@@ -42,7 +42,7 @@ pub unsafe fn construct_v6addr_unchecked(segments: &[u8]) -> Ipv6Addr {
 ///     0, 0,
 ///     0, 0,
 ///     0, 0x1]);
-/// 
+///
 /// let addr2 = construct_v6addr(&[]);
 ///
 /// assert_eq!(Some(ref_addr), addr);
@@ -155,4 +155,33 @@ pub fn netmapv6(upstream_addr: Ipv6Addr, downstream_prefix: &Ipv6Net) -> Ipv6Add
     let prefix_u128 = u128::from_be_bytes(downstream_prefix.addr().octets())
         & u128::from_be_bytes(downstream_prefix.netmask().octets());
     Ipv6Addr::from((prefix_u128 + net_u128).to_be_bytes())
+}
+
+/// rewrite the prefix of an Ipv6Addr
+///
+/// for details, see <https://datatracker.ietf.org/doc/html/rfc4291#section-2.7.1>
+///
+/// # Example
+///
+/// ```
+/// use ipnet::Ipv6Net;
+/// use std::net::Ipv6Addr;
+/// use address_translation::gen_solicited_node_multicast_address;
+///
+/// let node_addr: Ipv6Addr = "2001:db9::dead:feed".parse().unwrap();
+///
+/// let solicited_multi_addr = gen_solicited_node_multicast_address(&node_addr);
+/// let expected_addr: Ipv6Addr = "ff02::1:ffad:feed".parse().unwrap();
+///
+/// assert_eq!(solicited_multi_addr, expected_addr);
+/// ```
+pub fn gen_solicited_node_multicast_address(solicited_node_addr: &Ipv6Addr) -> Ipv6Addr {
+    // TODO: move to addres_translation
+    let octs = solicited_node_addr.octets();
+    unsafe {
+        construct_v6addr_unchecked(&[
+            0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, octs[13],
+            octs[14], octs[15],
+        ])
+    }
 }

@@ -15,14 +15,16 @@ class SimpleTimeDelayProfile():
     def __init__(self, cache_path, lock_path, layers=tuple()):
         ## layers: contains the (epsilon above the depth, depth) of layers
         self.cache_path = Path(cache_path)
-        self.lock = FileLock(lock_path)
+        self.lock = lock_path
         self.layers = layers
-        if self.cache_path.exists():
-            with self.lock:
-                with open(self.cache_path, 'rb') as cache_file:
-                    self.cache = pickle.load(cache_file)
+        if False:#self.cache_path.exists():
+            #with FileLock(self.lock):
+            with open(self.cache_path, 'rb') as cache_file:
+                self.cache = pickle.load(cache_file)
             # TODO: error messages
-            if self.cache["layers"] != layers:
+            print(layers)
+            compared = (self.cache["layers"] != layers)
+            if compared.all():
                 raise ValueError
         else:
             self.cache = dict()
@@ -36,15 +38,18 @@ class SimpleTimeDelayProfile():
         ## returns time delay of a specific relative position, UNIT: ns
         pos_pixel2 = (pos_pixel[0] - pos_antenna[0], pos_pixel[1] - pos_antenna[1], pos_pixel[2])
         # if cache exists, use it
+        '''
         if pos_pixel2[0] in self.cache:
             if pos_pixel2[1] in self.cache.get(pos_pixel2[0]):
                 if pos_pixel2[2] in self.cache.get(pos_pixel2[0]).get(pos_pixel2[1]):
                     if pos_antenna[2] in self.cache.get(pos_pixel2[0]).get(pos_pixel2[1]).get(pos_pixel2[2]):
                         time_delay = self.cache.get(pos_pixel2[0]).get(pos_pixel2[1]).get(pos_pixel2[2]).get(pos_antenna[2])
                         return time_delay
+        '''
         # else: if there is no value in cache, we will calculate it and update the cache
         my_time_delay = self.calculate_time_delay(pos_pixel2, pos_antenna[2])
         time_delay = my_time_delay
+        '''
         if pos_pixel2[0] in self.cache:
             if pos_pixel2[1] in self.cache.get(pos_pixel2[0]):
                 if pos_pixel2[2] in self.cache.get(pos_pixel2[0]).get(pos_pixel2[1]):
@@ -55,6 +60,7 @@ class SimpleTimeDelayProfile():
                 self.cache[pos_pixel2[0]][pos_pixel2[1]] = { pos_pixel2[2]: {pos_antenna[2]: my_time_delay} }
         else:
             self.cache[pos_pixel2[0]] = { pos_pixel2[1]: { pos_pixel2[2]: {pos_antenna[2]: my_time_delay} } }
+        '''
         return time_delay
 
 
@@ -130,7 +136,7 @@ class SimpleTimeDelayProfile():
 
     def save(self):
         # lock since the file may be read by other processes
-        with self.lock:
+        with FileLock(self.lock):
             # first, update the cache, since the file may be written during this instance's life
             if self.cache_path.exists():
                 with open(self.cache_path, 'rb') as cache_file:

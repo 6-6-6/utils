@@ -78,14 +78,19 @@ class Projecter():
                     boundr = beam_right_bound
                 Rt = [Xt[idx_xy], Yt[idx_xy], Zt[idx_z]]
                 Rr = [Xr[idx_xy], Yr[idx_xy], Zr[idx_z]]
+                #map_hint[idx_xy, idx_z] = [Zt[idx_z], Zr[idx_z], boundt, np.dot(Rt, Rt)]
+                #continue
                 #
                 if Zt[idx_z] < 0 and \
+                    Zr[idx_z] < 0 and \
                         Zt[idx_z]**2 >= boundt * np.dot(Rt, Rt) and \
                         Zr[idx_z]**2 >= boundr * np.dot(Rr, Rr):
                     time_delay_tx = self.projection_cache.get_time_delay(
-                        (Xt[idx_xy], Yt[idx_xy], Z[idx_z]), (0, 0, antenna_position_tx[2]))
+                        np.array((Xt[idx_xy], Yt[idx_xy], Z[idx_z]), 'float64'),
+                        np.array((0, 0, antenna_position_tx[2]), 'float64'))
                     time_delay_rx = self.projection_cache.get_time_delay(
-                        (Xr[idx_xy], Yr[idx_xy], Z[idx_z]), (0, 0, antenna_position_rx[2]))
+                        np.array((Xr[idx_xy], Yr[idx_xy], Z[idx_z]), 'float64'),
+                        np.array((0, 0, antenna_position_rx[2]), 'float64'))
                     map_hint[idx_xy, idx_z] = time_delay_tx + time_delay_rx
                 else:
                     map_hint[idx_xy, idx_z] = 0
@@ -111,6 +116,9 @@ class Projecter():
         output_data = output_data.reshape(
             (*self.map_hint.shape, self.wavelet_dots))
         output_data[self.map_hint == 0, :] = 0
+        sum_hint = np.zeros(output_data.shape[:-1], dtype='int32')
+        sum_hint[self.map_hint != 0] = 1
+        self.sum_hint = sum_hint
         return output_data
 
     def tofile(self, fname):

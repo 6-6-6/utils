@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 
+import numpy as np
+
 def sec(t, t0=6, tw=0.2, const_gain=0.01, alpha=0.05,
         speed=0.173205, maxg=100):
     # time: ns
